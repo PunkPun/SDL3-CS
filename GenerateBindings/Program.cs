@@ -904,12 +904,11 @@ internal static partial class Program
         {
             output = @"// NOTE: This file is auto-generated.
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
-using System.Runtime.CompilerServices;
-using System.Text;
 
-namespace SDL3;
+namespace OpenRA.Platforms.Default;
 
 public static unsafe partial class SDL
 {

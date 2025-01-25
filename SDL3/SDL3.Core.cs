@@ -3,9 +3,8 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
-using System.Text;
 
-namespace SDL3;
+namespace OpenRA.Platforms.Default;
 
 public static unsafe partial class SDL
 {
