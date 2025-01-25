@@ -67,6 +67,9 @@ namespace SDL3
 				this.value = value;
 			}
 
+			public static SDLBool SDL_True => new SDLBool(TRUE_VALUE);
+			public static SDLBool SDL_False => new SDLBool(FALSE_VALUE);
+
 			public static implicit operator bool(SDLBool b)
 			{
 				return b.value != FALSE_VALUE;

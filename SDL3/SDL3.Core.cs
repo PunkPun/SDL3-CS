@@ -52,6 +52,9 @@ public static unsafe partial class SDL
 			this.value = value;
 		}
 
+		public static SDLBool SDL_True => new(TRUE_VALUE);
+		public static SDLBool SDL_False => new(FALSE_VALUE);
+
 		public static implicit operator bool(SDLBool b)
 		{
 			return b.value != FALSE_VALUE;
