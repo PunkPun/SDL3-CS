@@ -43,7 +43,7 @@ public static unsafe partial class SDL
 	// C# bools are not blittable, so we need this workaround
 	public readonly record struct SDLBool
 	{
-		private readonly byte value;
+		readonly byte value;
 
 		internal const byte FALSE_VALUE = 0;
 		internal const byte TRUE_VALUE = 1;
@@ -74,7 +74,7 @@ public static unsafe partial class SDL
 		}
 	}
 
-	private const string nativeLibName = "SDL3";
+	const string nativeLibName = "SDL3";
 
 	// /usr/local/include/SDL3/SDL_stdinc.h
 

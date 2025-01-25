@@ -8,13 +8,13 @@ namespace GenerateBindings;
 
 internal static partial class Program
 {
-    private enum TypeContext
+    enum TypeContext
     {
         StructField,
         FunctionData,
     }
 
-    private class StructDefinitionType
+    class StructDefinitionType
     {
         public bool ContainsUnion { get; set; }
         public List<(uint, string)> OffsetFields { get; } = new();
@@ -28,7 +28,7 @@ internal static partial class Program
         }
     }
 
-    private class FunctionSignatureType
+    class FunctionSignatureType
     {
         public enum ReturnIntentType
         {
@@ -57,30 +57,30 @@ internal static partial class Program
         }
     }
 
-    private static readonly List<string> DefinedTypes = new();
-    private static readonly Dictionary<string, RawFFIEntry> TypedefMap = new();
-    private static readonly HashSet<string> UnusedUserProvidedTypes = new();
-    private static readonly Dictionary<string, string> ReservedWords = new()
+    static readonly List<string> DefinedTypes = new();
+    static readonly Dictionary<string, RawFFIEntry> TypedefMap = new();
+    static readonly HashSet<string> UnusedUserProvidedTypes = new();
+    static readonly Dictionary<string, string> ReservedWords = new()
     {
         { "checked", "check" }
     };
 
-    private static readonly StructDefinitionType StructDefinition = new();
-    private static readonly FunctionSignatureType FunctionSignature = new();
+    static readonly StructDefinitionType StructDefinition = new();
+    static readonly FunctionSignatureType FunctionSignature = new();
 
-    private static bool CoreMode = false;
+    static bool CoreMode = false;
 
-    private static bool CheckCoreMode(string[] args)
+    static bool CheckCoreMode(string[] args)
     {
         return args.Contains("--core");
     }
 
-    private static DirectoryInfo GetSDL3Directory(string[] args)
+    static DirectoryInfo GetSDL3Directory(string[] args)
     {
         return new DirectoryInfo(args[0]);
     }
 
-    private static int Main(string[] args)
+    static int Main(string[] args)
     {
         // PARSE INPUT
         if (args.Length < 1)
@@ -579,7 +579,7 @@ internal static partial class Program
                         $"[DllImport(nativeLibName, EntryPoint = \"{FunctionSignature.Name}\", CallingConvention = CallingConvention.Cdecl)]\n"
                     );
                     definitions.Append(
-                        $"private static extern {FunctionSignature.ReturnType.Replace("UTF8_STRING", "IntPtr")} INTERNAL_{FunctionSignature.Name}("
+                        $"static extern {FunctionSignature.ReturnType.Replace("UTF8_STRING", "IntPtr")} INTERNAL_{FunctionSignature.Name}("
                     );
 
                     definitions.Append(FunctionSignature.ParameterString.ToString().Replace("UTF8_STRING", "byte*"));
@@ -858,7 +858,7 @@ internal static partial class Program
         return 0;
     }
 
-    private static FileInfo FindInPath(string exeName)
+    static FileInfo FindInPath(string exeName)
     {
         var envPath = Environment.GetEnvironmentVariable("PATH");
         if (envPath != null)
@@ -876,7 +876,7 @@ internal static partial class Program
         return new FileInfo("");
     }
 
-    private static Process RunProcess(FileInfo exe, string args, bool redirectStdOut = false, DirectoryInfo? workingDir = null)
+    static Process RunProcess(FileInfo exe, string args, bool redirectStdOut = false, DirectoryInfo? workingDir = null)
     {
         var process = new Process();
         process.StartInfo.FileName = exe.FullName;
@@ -897,7 +897,7 @@ internal static partial class Program
         return process;
     }
 
-    private static string CompileBindingsCSharp(string definitions)
+    static string CompileBindingsCSharp(string definitions)
     {
         string output;
         if (CoreMode)
@@ -947,7 +947,7 @@ public static unsafe partial class SDL
     // C# bools are not blittable, so we need this workaround
     public readonly record struct SDLBool
     {
-        private readonly byte value;
+        readonly byte value;
 
         internal const byte FALSE_VALUE = 0;
         internal const byte TRUE_VALUE = 1;
@@ -991,7 +991,7 @@ namespace SDL3
 
 public static unsafe class SDL
 {
-    private static byte* EncodeAsUTF8(string str)
+    static byte* EncodeAsUTF8(string str)
     {
         if (str == null)
         {
@@ -1008,7 +1008,7 @@ public static unsafe class SDL
         return buffer;
     }
 
-    private static string DecodeFromUTF8(IntPtr ptr, bool shouldFree = false)
+    static string DecodeFromUTF8(IntPtr ptr, bool shouldFree = false)
     {
         if (ptr == IntPtr.Zero)
         {
@@ -1040,7 +1040,7 @@ public static unsafe class SDL
     // C# bools are not blittable, so we need this workaround
     public struct SDLBool
     {
-        private readonly byte value;
+        readonly byte value;
 
         internal const byte FALSE_VALUE = 0;
         internal const byte TRUE_VALUE = 1;
@@ -1090,7 +1090,7 @@ public static unsafe class SDL
         }
 
         output += $@"
-    private const string nativeLibName = ""SDL3"";
+    const string nativeLibName = ""SDL3"";
 
     {definitions}
 }}
@@ -1104,7 +1104,7 @@ public static unsafe class SDL
         return output;
     }
 
-    private static RawFFIEntry GetTypeFromTypedefMap(RawFFIEntry type)
+    static RawFFIEntry GetTypeFromTypedefMap(RawFFIEntry type)
     {
         if (type.Tag.StartsWith("SDL_"))
         {
@@ -1123,7 +1123,7 @@ public static unsafe class SDL
         return type;
     }
 
-    private static string CSharpTypeFromFFI(RawFFIEntry type, TypeContext context)
+    static string CSharpTypeFromFFI(RawFFIEntry type, TypeContext context)
     {
         if ((type.Tag == "pointer") && IsDefinedType(type.Type!.Tag))
         {
@@ -1174,7 +1174,7 @@ public static unsafe class SDL
         };
     }
 
-    private static string SanitizeName(string unsanitizedName)
+    static string SanitizeName(string unsanitizedName)
     {
         return unsanitizedName switch
         {
@@ -1189,7 +1189,7 @@ public static unsafe class SDL
         };
     }
 
-    private static bool IsDefinedType(string? typeName)
+    static bool IsDefinedType(string? typeName)
     {
         if (typeName == null) return false;
 
@@ -1200,7 +1200,7 @@ public static unsafe class SDL
             );
     }
 
-    private static void ConstructStruct(string structName, RawFFIEntry entry, StringBuilder definitions)
+    static void ConstructStruct(string structName, RawFFIEntry entry, StringBuilder definitions)
     {
         StructDefinition.Reset();
         ConstructStructFields(entry, typePrefix: $"{structName}_");
@@ -1232,7 +1232,7 @@ public static unsafe class SDL
         }
     }
 
-    private static void ConstructStructFields(
+    static void ConstructStructFields(
         RawFFIEntry entry,
         uint byteOffset = 0,
         string typePrefix = "",
@@ -1326,7 +1326,7 @@ public static unsafe class SDL
         }
     }
 
-    private static bool IsFlagType(string name)
+    static bool IsFlagType(string name)
     {
         return name.EndsWith("Flags") || UserProvidedData.FlagTypes.Contains(name);
     }
