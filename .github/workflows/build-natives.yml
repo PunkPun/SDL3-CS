@@ -1,0 +1,135 @@
+name: Build native dependencies (SDL3)
+
+# Change SDL3 version based on https://github.com/libsdl-org/SDL/releases, but remember to check what SDL3 version SDL3-CS targets.
+# Change Chromium revision numbers based on https://chromium.woolyss.com/download/.
+env:
+    SDL3_VERSION: 3.2.4 # Make sure this matches the version mentioned in the description in the .nuspec file.
+    CHROMIUM_BUILD_x64: 1136314
+
+on:
+    pull_request:
+    workflow_call:
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+  windows:
+    name: Windows (x86 + x64)
+    runs-on: ubuntu-22.04
+    steps:
+        - name: Setup Dependencies
+          run: |
+            mkdir -p artifacts/x86
+            mkdir artifacts/x64
+
+        # Download an official precompiled release version of SDL because compiling for Windows on Linux is hard.
+        # Download also a precompiled version of Chromium in order to extract libEGL.dll and libGLESv2.dll, which the Windows SDL DLL depends on.
+        - name: Download natives
+          run: |
+            curl -s -L -O https://www.libsdl.org/release/SDL3-${SDL3_VERSION}-win32-x64.zip
+            unzip SDL3-${SDL3_VERSION}-win32-x64.zip SDL3.dll -d artifacts/x64
+            curl -s -L -O https://storage.googleapis.com/chromium-browser-snapshots/Win_x64/${CHROMIUM_BUILD_x64}/chrome-win.zip
+            unzip -j chrome-win.zip chrome-win/libEGL.dll -d artifacts/x64
+            unzip -j chrome-win.zip chrome-win/libGLESv2.dll -d artifacts/x64
+
+        - name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: Natives-Windows
+            path: ./artifacts
+  macos:
+      name: macOS (x64 + arm64)
+      runs-on: macos-15
+      steps:
+          - name: Setup Dependencies
+            run: |
+              mkdir -p artifacts/x86_64
+              mkdir artifacts/arm64
+
+          - name: Compile natives
+            run: |
+              curl -s -L -O https://www.libsdl.org/release/SDL3-${SDL3_VERSION}.tar.gz
+              tar xf SDL3-${SDL3_VERSION}.tar.gz
+              cd SDL3-${SDL3_VERSION}
+              cmake -B build -DCMAKE_SYSTEM_NAME=Darwin -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
+              cd build
+              make
+              cp libSDL3.0.dylib ../../artifacts/SDL3.dylib
+
+          - name: Upload Artifacts
+            uses: actions/upload-artifact@v4
+            with:
+              name: Natives-MacOS
+              path: ./artifacts
+
+  # Note: Running inside a RockyLinux container because we want to compile using a version of glibc
+  # that is as old as reasonably possible to ensure backwards compatibility of the compiled binaries.
+  linux-x64:
+    name: Linux (x64)
+    runs-on: ubuntu-22.04
+    container: rockylinux:8
+    steps:
+        - name: Setup Dependencies
+          run: |
+            mkdir -p artifacts/x64
+            dnf -y upgrade
+            dnf install -y "dnf-command(config-manager)"
+            dnf config-manager --set-enabled powertools
+            dnf install -y epel-release
+            dnf groupinstall -y "Development Tools"
+            dnf -y update
+            dnf install -y libXext-devel libX11-devel mesa-libGL-devel mesa-libGLU-devel libXrender-devel libXrandr-devel libXcursor-devel libXinerama-devel libXi-devel wayland-devel wayland-protocols-devel libxkbcommon-x11-devel
+
+        - name: Compile natives
+          run: |
+            curl -s -L -O https://www.libsdl.org/release/SDL3-${SDL3_VERSION}.tar.gz
+            tar xf SDL3-${SDL3_VERSION}.tar.gz
+            cd SDL3-${SDL3_VERSION}
+            ./configure --disable-rpath --enable-loadso --disable-audio --disable-sensor --enable-x11-shared --enable-video-wayland --enable-wayland-shared --disable-video-directfb --disable-video-vulkan --disable-video-dummy --disable-power --disable-joystick --disable-haptic --disable-filesystem --disable-file --disable-cpuinfo --prefix "${PWD}"
+            make
+            make install
+            cp lib/libSDL3.so ../artifacts/x64/SDL3.so
+
+        - name: Upload Artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: Natives-Linux(x64)
+            path: ./artifacts
+
+  # Note: Using the run-on-arch action is *very* slow, but is the only way to simulate arm64 architecture.
+  linux-arm64:
+      name: Linux (arm64)
+      runs-on: ubuntu-22.04
+      steps:
+          - name: Setup dependencies and compile natives
+            uses: uraimo/run-on-arch-action@v2
+            with:
+              arch: aarch64
+              distro: ubuntu22.04
+              shell: /bin/sh
+              githubToken: ${{ github.token }}
+              setup: |
+                mkdir -p "${PWD}/artifacts/arm64"
+              dockerRunArgs: |
+                --volume "${PWD}/artifacts:/artifacts"
+              env: |
+                SDL3_VERSION: ${{ env.SDL3_VERSION }}
+              install: |
+                apt-get update -q -y
+                apt-get install -y build-essential pkgconf curl libxext-dev libx11-dev libwayland-dev libgl1-mesa-dev libglu1-mesa-dev libxrender-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev libxkbcommon-dev
+              run: |
+                curl -s -L -O https://www.libsdl.org/release/SDL3-${SDL3_VERSION}.tar.gz
+                tar xf SDL3-${SDL3_VERSION}.tar.gz
+                cd SDL3-${SDL3_VERSION}
+                ./configure --disable-rpath --enable-loadso --disable-audio --disable-sensor --enable-x11-shared --enable-video-wayland --enable-wayland-shared --disable-video-directfb --disable-video-vulkan --disable-video-dummy --disable-power --disable-joystick --disable-haptic --disable-filesystem --disable-file --disable-cpuinfo --prefix "${PWD}"
+                make
+                make install
+                cp lib/libSDL3.so /artifacts/arm64/SDL3.so
+
+          - name: Upload Artifacts
+            uses: actions/upload-artifact@v4
+            with:
+              name: Natives-Linux(arm64)
+              path: ./artifacts
