@@ -750,6 +750,18 @@ internal static class UserProvidedData
     internal static readonly Dictionary<string, string[]> FlagEnumDefinitions = new()
     {
         {
+            "SDL_BlendMode", [
+                "SDL_BLENDMODE_NONE = 0x00000000u",
+                "SDL_BLENDMODE_BLEND = 0x00000001u",
+                "SDL_BLENDMODE_BLEND_PREMULTIPLIED = 0x00000010u",
+                "SDL_BLENDMODE_ADD = 0x00000002u",
+                "SDL_BLENDMODE_ADD_PREMULTIPLIED = 0x00000020u",
+                "SDL_BLENDMODE_MOD = 0x00000004u",
+                "SDL_BLENDMODE_MUL = 0x00000008u",
+                "SDL_BLENDMODE_INVALID = 0x7FFFFFFFu",
+            ]
+        }, // ./include/SDL3/SDL_blendmode.h:54:16
+        {
             "SDL_SurfaceFlags", [
                 "SDL_SURFACE_PREALLOCATED",
                 "SDL_SURFACE_LOCK_NEEDED",
@@ -787,6 +799,33 @@ internal static class UserProvidedData
                 "SDL_WINDOW_NOT_FOCUSABLE = 0x080000000",
             ]
         }, // ./include/SDL3/SDL_video.h:158:16
+        {
+            "SDL_GLProfile", [
+                "SDL_GL_CONTEXT_PROFILE_CORE",
+                "SDL_GL_CONTEXT_PROFILE_COMPATIBILITY",
+                "SDL_GL_CONTEXT_PROFILE_ES",
+            ]
+        }, // ./include/SDL3/SDL_video.h:464:16
+        {
+            "SDL_GLContextFlag", [
+                "SDL_GL_CONTEXT_DEBUG_FLAG",
+                "SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG",
+                "SDL_GL_CONTEXT_ROBUST_ACCESS_FLAG",
+                "SDL_GL_CONTEXT_RESET_ISOLATION_FLAG",
+            ]
+        }, // ./include/SDL3/SDL_video.h:476:16
+        {
+            "SDL_GLContextReleaseFlag", [
+                "SDL_GL_CONTEXT_RELEASE_BEHAVIOR_NONE = 0",
+                "SDL_GL_CONTEXT_RELEASE_BEHAVIOR_FLUSH = 1",
+            ]
+        }, // ./include/SDL3/SDL_video.h:490:16
+        {
+            "SDL_GLContextResetNotification", [
+                "SDL_GL_CONTEXT_RESET_NO_NOTIFICATION = 0",
+                "SDL_GL_CONTEXT_RESET_LOSE_CONTEXT = 1",
+            ]
+        }, // ./include/SDL3/SDL_video.h:503:16
         {
             "SDL_MouseButtonFlags", [
                 "SDL_BUTTON_LMASK",
@@ -913,7 +952,12 @@ internal static class UserProvidedData
     internal static readonly HashSet<string> FlagTypes =
     [
         "SDL_Keymod",
-        "SDL_GPUShaderFormat"
+        "SDL_GPUShaderFormat",
+        "SDL_BlendMode",
+        "SDL_GLProfile",
+        "SDL_GLContextFlag",
+        "SDL_GLContextReleaseFlag",
+        "SDL_GLContextResetNotification",
     ];
 
     internal static readonly string[] DeniedTypes = [];

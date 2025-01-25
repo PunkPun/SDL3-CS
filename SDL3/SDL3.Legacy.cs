@@ -1154,6 +1154,19 @@ namespace SDL3
 
 		// /usr/local/include/SDL3/SDL_blendmode.h
 
+		[Flags]
+		public enum SDL_BlendMode : uint
+		{
+			SDL_BLENDMODE_NONE = 0x00000000u,
+			SDL_BLENDMODE_BLEND = 0x00000001u,
+			SDL_BLENDMODE_BLEND_PREMULTIPLIED = 0x00000010u,
+			SDL_BLENDMODE_ADD = 0x00000002u,
+			SDL_BLENDMODE_ADD_PREMULTIPLIED = 0x00000020u,
+			SDL_BLENDMODE_MOD = 0x00000004u,
+			SDL_BLENDMODE_MUL = 0x00000008u,
+			SDL_BLENDMODE_INVALID = 0x7FFFFFFFu,
+		}
+
 		public enum SDL_BlendOperation
 		{
 			SDL_BLENDOPERATION_ADD = 1,
@@ -1178,7 +1191,7 @@ namespace SDL3
 		}
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern uint SDL_ComposeCustomBlendMode(SDL_BlendFactor srcColorFactor, SDL_BlendFactor dstColorFactor, SDL_BlendOperation colorOperation, SDL_BlendFactor srcAlphaFactor, SDL_BlendFactor dstAlphaFactor, SDL_BlendOperation alphaOperation);
+		public static extern SDL_BlendMode SDL_ComposeCustomBlendMode(SDL_BlendFactor srcColorFactor, SDL_BlendFactor dstColorFactor, SDL_BlendOperation colorOperation, SDL_BlendFactor srcAlphaFactor, SDL_BlendFactor dstAlphaFactor, SDL_BlendOperation alphaOperation);
 
 		// /usr/local/include/SDL3/SDL_pixels.h
 
@@ -1709,7 +1722,7 @@ namespace SDL3
 		public static extern SDLBool SDL_GetSurfaceAlphaMod(IntPtr surface, out byte alpha);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern SDLBool SDL_SetSurfaceBlendMode(IntPtr surface, uint blendMode);
+		public static extern SDLBool SDL_SetSurfaceBlendMode(IntPtr surface, SDL_BlendMode blendMode);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern SDLBool SDL_GetSurfaceBlendMode(IntPtr surface, IntPtr blendMode);
@@ -2187,6 +2200,37 @@ namespace SDL3
 			SDL_GL_CONTEXT_NO_ERROR = 25,
 			SDL_GL_FLOATBUFFERS = 26,
 			SDL_GL_EGL_PLATFORM = 27,
+		}
+
+		[Flags]
+		public enum SDL_GLProfile : uint
+		{
+			SDL_GL_CONTEXT_PROFILE_CORE = 0x1,
+			SDL_GL_CONTEXT_PROFILE_COMPATIBILITY = 0x2,
+			SDL_GL_CONTEXT_PROFILE_ES = 0x4,
+		}
+
+		[Flags]
+		public enum SDL_GLContextFlag : uint
+		{
+			SDL_GL_CONTEXT_DEBUG_FLAG = 0x1,
+			SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG = 0x2,
+			SDL_GL_CONTEXT_ROBUST_ACCESS_FLAG = 0x4,
+			SDL_GL_CONTEXT_RESET_ISOLATION_FLAG = 0x08,
+		}
+
+		[Flags]
+		public enum SDL_GLContextReleaseFlag : uint
+		{
+			SDL_GL_CONTEXT_RELEASE_BEHAVIOR_NONE = 0,
+			SDL_GL_CONTEXT_RELEASE_BEHAVIOR_FLUSH = 1,
+		}
+
+		[Flags]
+		public enum SDL_GLContextResetNotification : uint
+		{
+			SDL_GL_CONTEXT_RESET_NO_NOTIFICATION = 0,
+			SDL_GL_CONTEXT_RESET_LOSE_CONTEXT = 1,
 		}
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -7759,7 +7803,7 @@ namespace SDL3
 		public static extern SDLBool SDL_GetTextureAlphaModFloat(IntPtr texture, out float alpha); // WARN_UNKNOWN_POINTER_PARAMETER
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern SDLBool SDL_SetTextureBlendMode(IntPtr texture, uint blendMode); // WARN_UNKNOWN_POINTER_PARAMETER
+		public static extern SDLBool SDL_SetTextureBlendMode(IntPtr texture, SDL_BlendMode blendMode); // WARN_UNKNOWN_POINTER_PARAMETER
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern SDLBool SDL_GetTextureBlendMode(IntPtr texture, IntPtr blendMode); // WARN_UNKNOWN_POINTER_PARAMETER
@@ -7858,7 +7902,7 @@ namespace SDL3
 		public static extern SDLBool SDL_GetRenderColorScale(IntPtr renderer, out float scale);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-		public static extern SDLBool SDL_SetRenderDrawBlendMode(IntPtr renderer, uint blendMode);
+		public static extern SDLBool SDL_SetRenderDrawBlendMode(IntPtr renderer, SDL_BlendMode blendMode);
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern SDLBool SDL_GetRenderDrawBlendMode(IntPtr renderer, IntPtr blendMode);
