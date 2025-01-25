@@ -811,7 +811,7 @@ internal static partial class Program
 
         File.WriteAllText(
             path: Path.Combine(sdlBindingsDir.FullName, outputFilename),
-            contents: CompileBindingsCSharp(definitions.ToString())
+            contents: CompileBindingsCSharp(definitions.ToString().Trim())
         );
 
         RunProcess(dotnetExe, args: $"format {sdlBindingsProjectFile}");

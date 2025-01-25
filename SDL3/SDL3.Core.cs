@@ -8411,6 +8411,4 @@ public static unsafe partial class SDL
 	[LibraryImport(nativeLibName)]
 	[UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
 	public static partial void SDL_GDKSuspendComplete();
-
-
 }

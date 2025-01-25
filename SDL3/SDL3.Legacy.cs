@@ -8432,7 +8432,5 @@ namespace SDL3
 
 		[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void SDL_GDKSuspendComplete();
-
-
 	}
 }
